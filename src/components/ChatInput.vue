@@ -27,6 +27,8 @@ export default {
 .chat-input-container {
   position: fixed;
   bottom: 0;
+  align-items: center;
+  alignment-baseline: center;
   width: 100%;
   text-align: center;
   background-color: #333;
@@ -37,7 +39,7 @@ export default {
 input {
   background-color: #555;
   color: #fff;
-  border: none;
+  border: 1px solid #ccc;
   padding: 10px;
   margin: 5px;
   width: 80%;

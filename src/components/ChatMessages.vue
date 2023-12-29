@@ -4,7 +4,7 @@
 
 <template>
   <div ref="messagesContainer" class="messages-container">
-    <div v-for="(message, index) in messages" :key="index" :class="{ 'sent-message': message.sent, 'received-message': !message.sent }" class="message">
+    <div v-for="(message, index) in messages" :key="index" :class="{ 'sent-message': message.sent, 'system-message':(message.role ==='system'), 'received-message': !message.sent }" class="message">
       <div v-html="renderMarkdown(message.content)" class="markdown-content"></div>
     </div>
   </div>
@@ -14,7 +14,7 @@
 
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
-import 'highlight.js/styles/github.css';
+import 'highlight.js/styles/github-dark.css';
 import ClipboardJS from 'clipboard';
 import '@fortawesome/fontawesome-free/css/all.css';
 
@@ -43,7 +43,6 @@ export default {
     }
   },
   mounted() {
-    this.scrollMessagesToBottom();
     new ClipboardJS('.copy-button', {
       text: function (trigger) {
         return trigger.previousElementSibling.innerText;
@@ -54,10 +53,6 @@ export default {
     renderMarkdown(content) {
       return md.render(content);
     },
-    scrollMessagesToBottom() {
-      const container = this.$refs.messagesContainer;
-      container.scrollTop = container.scrollHeight;
-    }
   },
 
 };
@@ -73,10 +68,15 @@ export default {
   background-color: #333; /* Fondo oscuro */
   color: #fff; /* Texto claro */
   bottom: 75px;
+  overflow-x: hidden;
+  margin-bottom: 1.8em;
 }
 .sent-message {
   text-align: right;
   color: #00bcd4; /* Color para mensajes enviados */
+}
+.system-message {
+  display: none;
 }
 .received-message {
   text-align: left;

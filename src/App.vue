@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" ref="app">
     <ChatMessages :messages="messages" />
     <ChatInput @new-message="addMessage" />
   </div>
@@ -14,13 +14,13 @@ import ChatMessages from './components/ChatMessages.vue';
 export default {
   data() {
     return {
-      messages: []
+      messages: [],
     };
   },
   methods: {
     async addMessage(message) {
-      if (this.messages.length === 0){
-        this.messages.push({ content: 'Todas mis respuestas deben seran en español sin importar en que idioma me hablen' , role: 'system', sent: false });
+      if (this.messages.length === 0 && process.env.VUE_APP_FIRST_MESSAGE !== undefined){
+        this.messages.push({ content: process.env.VUE_APP_FIRST_MESSAGE , role: 'system', sent: false });
       }
 
       this.messages.push({ content: message.content, sent: true });
@@ -29,19 +29,14 @@ export default {
       // Enviar mensaje al servidor
       try {
 
-        const apiUrl = 'http://localhost:11434/api/chat';
+        const apiUrl = process.env.VUE_APP_API_URL;
         const requestBody = {
-          model: 'llama2',
+          model: process.env.VUE_APP_MODEL,
           stream: false,
           messages:  this.messages.map(msg => ({ role: msg.sent ? 'user' : 'assistant', content: msg.content }))
         };
 
         console.log('Request body:', requestBody)
-
-
-
-
-
         const response = await axios.post(apiUrl, requestBody, { crossorigin: true });
         response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
         response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -53,6 +48,15 @@ export default {
         console.error('Error al enviar mensaje:', error);
       }
     }
+  },
+  mounted() {
+    const container = this.$refs.app;
+    container.addEventListener('scroll', this.handleScroll);
+  },
+  beforeUnmount() {
+    // Elimina el listener para evitar fugas de memoria
+    const container = this.$refs.app;
+    container.removeEventListener('scroll', this.handleScroll);
   },
   components: {
     ChatInput,
